@@ -1,0 +1,15 @@
+# Compile
+clang -lgmp asdf.c
+
+# website
+gmplib.org/manual/
+
+# cpp
+c++ primitive.cpp -lgmp -std=c++11
+
+# generating primes
+gap
+p := NextPrimeInt(2^100);
+factor := Factors(p-1);
+PrimitiveRootMod(p);
+
