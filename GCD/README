@@ -1,0 +1,6 @@
+In order to generate test cases please use the testgen.py script.
+    $ ./testgen.py test.txt answers.txt 1000 128
+    $ ./testgen.py <test output> <benchmark answer output> <real answer out> <num tests> <num bits of test numbers>
+
+To check correctness, generate a file of answers and diff
+    $ diff myanswers.txt answers.txt
