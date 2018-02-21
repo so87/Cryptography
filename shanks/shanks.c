@@ -8,38 +8,61 @@
 int shanks(mpz_t a, mpz_t b, mpz_t N, mpz_t x){
   bool solution = false;
   // Chose some random K
-  int k=100;
+  int k=10;
   
   // Initilize array for a^1, ... a^k-1
   mpz_t * array_1;
   array_1 = malloc(sizeof(mpz_t)*k);  
  
-  // Initilize array for ba^-k, ... ba^-rk  
-  mpz_t * array_2;
+  // Initilize varialbe for ba^-k, ... ba^-rk  
+  mpz_t result;
+  mpz_init(result);
   int n = mpz_get_ui(N);
   int r = k * ((n+1)/k); 
-  array_2 = malloc(sizeof(mpz_t)*r);
+  //array_2 = malloc(sizeof(mpz_t)*r);
  
   // Evaluate a^1, a^2, ... a^k-1 and store (array 1)
   for(int i = 1; i < k-1; i++){
 	mpz_init(array_1[i]);
 	// calc a^i mod N 
-	
+	mpz_powm_ui(array_1[i], a, i, N);
+	gmp_printf("%Zd \n", array_1[i]);	
   } 
-
+  
   // Iterate through ba^-k, ba^-2k,...ba^-rk(array 2)
   // 			                  rk > N
-  for(int i = 1; i < r; i++){
-	mpz_init(array_2[i]);
+  mpz_t powers, one, neg_powers;
+  mpz_init(one);
+  mpz_set_str(one, "1", 10);
+  mpz_init(powers);
+  mpz_init(neg_powers);
+  int power_int;
+  printf("Printing second array\n");
+  for(int i = 1; i < 10; i++){
 	// calc b*a^(-i*k) mod N
-
+	power_int = (i)*k;
+	mpz_pow_ui(powers, a, power_int);
+	// 1/a^power to make it negative
+	mpz_cdiv_q(neg_powers, one, powers);	
+	// multiply b with 1/result	
+	mpz_mul(result, neg_powers, b);
+	// mod the result
+	mpz_t mod_result;
+	mpz_init(mod_result);
+	mpz_mod(mod_result, result, N);
+	gmp_printf("%Zd(b) * %Zd(a) ^%Zd(-i*k)", b, neg_powers, powers);
+	gmp_printf("result: %Zd\n", mod_result);
   	// If they match, solve by
-  	
-		// adding rk(array 2) to k(array 1)
+	for(int j=0; j < k-1; j++){
+  	  if(mpz_cmp(result, array_1[j])){
+		//solution = true;
+		//return solution;		
+	  	// adding rk(array 2) to k(array 1)
+	  }
+	}
   }
 
   free(array_1);
-  free(array_2); 
   // Return 0 if solution
   // Return -1 if no solution
   return solution;
