@@ -31,27 +31,32 @@ int shanks(mpz_t a, mpz_t b, mpz_t N, mpz_t x){
   
   // Iterate through ba^-k, ba^-2k,...ba^-rk(array 2)
   // 			                  rk > N
-  mpz_t powers, one, neg_powers;
-  mpz_init(one);
-  mpz_set_str(one, "1", 10);
+  mpz_t powers, inverse_a, result_a, result_ab, result_mod;
   mpz_init(powers);
-  mpz_init(neg_powers);
+  mpz_init(inverse_a);
+  mpz_init(result_a);
+  mpz_init(result_ab);
+  mpz_init(result_mod);
   int power_int;
   printf("Printing second array\n");
-  for(int i = 1; i < 10; i++){
+  for(int i = 1; i < 100; i++){
+	/*
 	// calc b*a^(-i*k) mod N
 	power_int = (i)*k;
 	mpz_pow_ui(powers, a, power_int);
 	// 1/a^power to make it negative
-	mpz_cdiv_q(neg_powers, one, powers);	
+	mpz_invert(neg_powers, powers, N);	
 	// multiply b with 1/result	
-	mpz_mul(result, neg_powers, b);
-	// mod the result
-	mpz_t mod_result;
-	mpz_init(mod_result);
-	mpz_mod(mod_result, result, N);
-	gmp_printf("%Zd(b) * %Zd(a) ^%Zd(-i*k)", b, neg_powers, powers);
-	gmp_printf("result: %Zd\n", mod_result);
+	mpz_mod(mod_b, b, N);
+	mpz_mul(result_mod, neg_powers, mod_b);
+	*/
+	power_int = i*k;
+	mpz_invert(inverse_a, a, N);
+	mpz_powm_ui(result_a, inverse_a, power_int, N);
+	mpz_mul(result_ab, result_a, b);
+	mpz_mod(result_mod, result_ab, N);
+	gmp_printf("%Zd(b) * %Zd(a-) ^%d(i*k)", b, result_a, power_int);
+	gmp_printf("result: %Zd\n", result_mod);
   	// If they match, solve by
 	for(int j=0; j < k-1; j++){
   	  if(mpz_cmp(result, array_1[j])){
