@@ -2,7 +2,8 @@
 #define FOO_H_
 
 #include "shanks.h"
+#include "gmp.h"
 
-void binary_gcd(mpz_t u,mpz_t v, mpz_t r);
 int shanks(mpz_t a, mpz_t b, mpz_t N, mpz_t x);
+int binary_search(mpz_t * array, mpz_t value, int low, int high);
 #endif // FOO_H_
