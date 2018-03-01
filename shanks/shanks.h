@@ -4,6 +4,6 @@
 #include "shanks.h"
 #include "gmp.h"
 
-int shanks(mpz_t a, mpz_t b, mpz_t N, mpz_t x);
+void shanks(mpz_t rop, mpz_t p, mpz_t g, mpz_t h);
 int binary_search(mpz_t * array, mpz_t value, int low, int high);
 #endif // FOO_H_

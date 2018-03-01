@@ -4,13 +4,13 @@
 #include "shanks.h"
 #include "math.h"
 
-int shanks(mpz_t a, mpz_t b, mpz_t N, mpz_t x){
+void shanks(mpz_t rop, mpz_t p, mpz_t g, mpz_t h){
   // k = floor(sqrt(n)) + 1
   mpz_t k_mpz, one;
   mpz_init(one);
   mpz_set_str(one, "1", 10);
   mpz_init(k_mpz);
-  mpz_sqrt(k_mpz, N);
+  mpz_sqrt(k_mpz, p);
   mpz_add(k_mpz, one, k_mpz);
   int k = mpz_get_ui(k_mpz);
   
@@ -21,23 +21,23 @@ int shanks(mpz_t a, mpz_t b, mpz_t N, mpz_t x){
   // Initilize varialbe for ba^-k, ... ba^-rk  
   mpz_t result;
   mpz_init(result);
-  int n = mpz_get_ui(N);
+  int n = mpz_get_ui(p);
   int r = k * ((n+1)/k); 
  
   // Evaluate a^1, a^2, ... a^k-1 and store (array 1)
   for(int i = 1; i < k-1; i++){
 	mpz_init(array_1[i]);
 	// calc a^i mod N 
-	mpz_powm_ui(array_1[i], a, i, N);
+	mpz_powm_ui(array_1[i], g, i, p);
   } 
   
   // Iterate through ba^-k, ba^-2k,...ba^-rk(array 2)
   // 			                  rk > N
-  mpz_t powers, inverse_a, result_a, result_ab, result_mod;
+  mpz_t powers, inverse_g, result_g, result_gh, result_mod;
   mpz_init(powers);
-  mpz_init(inverse_a);
-  mpz_init(result_a);
-  mpz_init(result_ab);
+  mpz_init(inverse_g);
+  mpz_init(result_g);
+  mpz_init(result_gh);
   mpz_init(result_mod);
   int power_int;
   for(int i = 1; i < r; i++){
@@ -45,28 +45,24 @@ int shanks(mpz_t a, mpz_t b, mpz_t N, mpz_t x){
 	
 	// Find inverse
 	power_int = i*k;
-	mpz_invert(inverse_a, a, N);	
-	mpz_powm_ui(result_a, inverse_a, power_int, N);
+	mpz_invert(inverse_g, g, p);	
+	mpz_powm_ui(result_g, inverse_g, power_int, p);
 	
 	// multiply a and b together
-	mpz_mul(result_ab, result_a, b);
+	mpz_mul(result_gh, result_g, h);
 	
 	// Mod the result
-	mpz_mod(result_mod, result_ab, N);
+	mpz_mod(result_mod, result_gh, p);
 	
 	// Binary search through the first array
 	int middle = binary_search(array_1, result_mod, 1, k-1);
 	if(middle != -1){
 	  // adding the index from first array to power(i*k)	
-	  mpz_set_ui(x, middle+power_int);
-	  return 1;		
+	  mpz_set_ui(rop, middle+power_int);		
 	}
   }
 
   free(array_1);
-  // Return 0 if solution
-  // Return -1 if no solution
-  return r;
 };
 
 int binary_search(mpz_t * array, mpz_t value, int low, int high){
