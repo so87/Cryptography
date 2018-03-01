@@ -4,7 +4,7 @@
 #include "shanks.h"
 #include "math.h"
 
-void shanks(mpz_t rop, mpz_t p, mpz_t g, mpz_t h){
+void shanks(mpz_t rop, const mpz_t p, const mpz_t g, const mpz_t h){
   // k = floor(sqrt(n)) + 1
   mpz_t k_mpz, one;
   mpz_init(one);

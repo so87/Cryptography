@@ -26,19 +26,15 @@ int main(int argc, char **argv)
 	mpz_init(h);
 	mpz_init(p);
 	mpz_init(power);
+	int touples = 1;
 	
 	// If the file format is being used
-	if(argc == 2){
 	FILE * file;
+	if(argc == 2){
 	file = fopen(argv[1], "r");
-	
-	// Assign values
-	mpz_inp_str(p, file, 10);
-	mpz_inp_str(g, file, 10);
-	mpz_inp_str(h, file, 10);
-	fclose(file);
+	fscanf(file, "%d", &touples);
 	}
-
+	
 	// If the command line argument is being used
 	if(argc == 4){
 	mpz_set_si(p, atoi(argv[1]));
@@ -46,19 +42,29 @@ int main(int argc, char **argv)
 	mpz_set_si(h, atoi(argv[3]));
 	}
 	
+	for(int i=0; i < touples; i++){
+	// Assign values
+        mpz_inp_str(p, file, 10);
+        mpz_inp_str(g, file, 10);
+        mpz_inp_str(h, file, 10);
 
 	//Call Shanks
 	printf("--------------\n");
-	shanks(p,g, h, power);
+	shanks(power,p,g,h);
 	
 	//Print the results
 	gmp_printf("%Zd^x = %Zd mod %Zd\n",g,h,p);
 
 	// print what the generator equals	
 	gmp_printf("X equals: %Zd\n", power);	
+	}
 
 	printf("--------------\n");
 	printf("End of program\n");
-        return 0;
+       
+	if(argc == 2) 
+	  free(file);
+
+	return 0;
 }
 
