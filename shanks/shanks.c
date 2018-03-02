@@ -58,7 +58,8 @@ void shanks(mpz_t rop, const mpz_t p, const mpz_t g, const mpz_t h){
 	int middle = binary_search(array_1, result_mod, 1, k-1);
 	if(middle != -1){
 	  // adding the index from first array to power(i*k)	
-	  mpz_set_ui(rop, middle+power_int);		
+	  mpz_set_ui(rop, middle+power_int);
+	  return;		
 	}
   }
 
