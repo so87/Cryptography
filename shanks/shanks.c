@@ -3,7 +3,6 @@
 #include "stdlib.h"
 #include "shanks.h"
 #include "math.h"
-
 // need a structure to keep track of index
 typedef struct {
         mpz_t g;
@@ -18,7 +17,7 @@ int compare(const void* a, const void* b){
 
 }
 
-
+int binary_search(mpz * array, int size, mpz_t find);
 void shanks(mpz_t rop, const mpz_t p, const mpz_t g, const mpz_t h){
 	//Set up for n = floor of sqrt p-1 + 1  
         mpz_t n,N;
@@ -52,7 +51,7 @@ void shanks(mpz_t rop, const mpz_t p, const mpz_t g, const mpz_t h){
 
 	for(int i=0;i<= size;i++){
 
-                int j = binarySearch(powers,size,H);
+                int j = binary_search(powers,size,H);
                 // if found h*u^i return i*n + j                
                 if(j >= 0){
                         mpz_mul_ui(rop,n,i);
@@ -66,7 +65,7 @@ void shanks(mpz_t rop, const mpz_t p, const mpz_t g, const mpz_t h){
 };
 
 
-int binarySearch(mpz * arr, int size, mpz_t find){
+int binary_search(mpz * arr, int size, mpz_t find){
         int l,r;
         l = 0; r = size;
         while(l <= r){
