@@ -1,9 +1,7 @@
 #ifndef FOO_H_   /* Include guard */
 #define FOO_H_
 
-
-#include "shanks.h"
-#include "pohlig.h"
+#include "gmp.h"
 #include "factorize.h"
 
 void pohlig(mpz_t rop, const mpz_t p, const mpz_t g, const mpz_t h);

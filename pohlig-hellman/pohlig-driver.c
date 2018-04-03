@@ -4,7 +4,6 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "gmp.h"
-#include "shanks.h"
 #include "stdbool.h"
 #include "pohlig.h"
 
@@ -51,7 +50,7 @@ int main(int argc, char **argv)
 
 	//Call Pohlig
 	printf("--------------\n");
-	pohlig(power, p, h, h);
+	pohlig(power, p, h, g);
 	
 	//Print the results
 	gmp_printf("Power = %Zd\n",power);

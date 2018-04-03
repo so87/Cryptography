@@ -5,6 +5,4 @@ struct factors
   unsigned long *e;
   long nfactors;
 };
-
 void factor (mpz_t, struct factors *);
-

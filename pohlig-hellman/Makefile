@@ -5,6 +5,6 @@ pohlig = "BUilding pohlig files..."
 all: pohlig_driver
 	@echo $(Message)
 
-pohlig_driver: pohlig-driver.c pohlig.c 
+pohlig_driver: pohlig-driver.c 
 	@echo $(pohlig)
 	clang -lgmp pohlig-driver.c pohlig.c -o pohlig_driver
