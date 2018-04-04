@@ -4,7 +4,6 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "gmp.h"
-#include "stdbool.h"
 #include "pohlig.h"
 
 int main(int argc, char **argv)
@@ -19,20 +18,35 @@ int main(int argc, char **argv)
 	return 1;
        }
 	printf("This program tests the pohlig hellman algorithm\n");
+	printf("--------------\n");	
 
 	// Initialize	
-	mpz_t g, h, p, power;
+	mpz_t g, h, p, power, numTimes;
 	mpz_init(g);
 	mpz_init(h);
 	mpz_init(p);
 	mpz_init(power);
-	int touples = 1;
-	
+	mpz_init(numTimes);
+		
 	// If the file format is being used
-	FILE * file;
+	FILE * file;	
 	if(argc == 2){
 	file = fopen(argv[1], "r");
-	fscanf(file, "%d", &touples);
+	mpz_inp_str(numTimes, file, 10);
+
+        double numT =  mpz_get_d(numTimes);
+
+        for (double i = 0; i < numT; i++)
+         {
+          //Assign Values
+          mpz_inp_str(p, file, 10);
+          mpz_inp_str(g, file, 10);
+          mpz_inp_str(h, file, 10);
+
+          pohlig(power, p, g, h);
+          gmp_printf("The answer is : %Zd\n\n", power);
+         }
+
 	}
 	
 	// If the command line argument is being used
@@ -40,23 +54,15 @@ int main(int argc, char **argv)
 	mpz_set_si(p, atoi(argv[1]));
 	mpz_set_si(g, atoi(argv[2]));
 	mpz_set_si(h, atoi(argv[3]));
-	}
-	
-	for(int i=0; i < touples; i++){
-	// Assign values
-        mpz_inp_str(p, file, 10);
-        mpz_inp_str(g, file, 10);
-        mpz_inp_str(h, file, 10);
-
 	//Call Pohlig
 	printf("--------------\n");
 	pohlig(power, p, h, g);
-	
 	//Print the results
-	gmp_printf("Power = %Zd\n",power);
-
+	gmp_printf("The answer is: = %Zd\n",power);
 	}
 
+
+	// FIN
 	printf("--------------\n");
 	printf("End of program\n");
        

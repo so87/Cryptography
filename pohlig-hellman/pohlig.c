@@ -3,10 +3,94 @@
 #include "gmp.h"
 #include "shanks.h"
 #include "stdbool.h"
+#include "stdlib.h"
 
-void pohlig(mpz_t rop, const mpz_t p, const mpz_t g, const mpz_t h)
+void pohlig(mpz_t rop, const mpz_t p, const mpz_t g, const mpz_t x)
 {
-	printf("Testing Pohlig\n");
+//show what p,g,x
+  gmp_printf("Dlp was called with these values:\nThe p : %Zd g : %Zd x : %Zd \n", p , g , x);
+  //set up factor array
+  struct factors *f = malloc(sizeof(struct factors));
+
+  mpz_t n, nTemp ,h, gTemp, expTemp, hTemp, qTemp , eTemp, one, result;
+
+  mpz_init(n);
+  mpz_init(nTemp);
+  mpz_init(h);
+  mpz_init(gTemp);
+  mpz_init(expTemp);
+  mpz_init(hTemp);
+  mpz_init(qTemp);
+  mpz_init(eTemp);
+  mpz_init(one);
+  mpz_init(result);
+
+  mpz_set_str(one,"1",10);
+  mpz_sub(n,p,one);
+  mpz_set(nTemp,n);
+
+  mpz_t * gi;
+  mpz_t * hi;
+  mpz_t * yi;
+
+
+  factor(nTemp,f);
+
+  gi = malloc(sizeof(mpz_t)*f->nfactors);
+  hi = malloc(sizeof(mpz_t)*f->nfactors);
+  yi = malloc(sizeof(mpz_t)*f->nfactors);
+
+  for (int i = 0; i < f->nfactors; i++)
+    {
+      mpz_init(gi[i]);
+      mpz_init(hi[i]);
+      mpz_init(yi[i]);
+    }
+
+
+  for (int i = 0; i < f->nfactors; i++)
+    {
+      mpz_set_ui(eTemp, f->e[i]);
+      mpz_powm(qTemp,f->p[i], eTemp, p);
+      mpz_cdiv_q(expTemp,n,qTemp);
+      mpz_powm(gTemp,g,expTemp,p);
+      mpz_powm(hTemp,x,expTemp,p);
+      //create the gi and hi
+      mpz_set(gi[i],gTemp);
+      mpz_set(hi[i],hTemp);
+    }
+
+  for (int i = 0; i < f->nfactors; i++)
+    {
+      mpz_set_ui(eTemp, f->e[i]);
+      mpz_powm(qTemp,f->p[i], eTemp, p);
+      mpz_set_ui(eTemp, f->e[i]);
+      //call Shank and make the yi
+      shanks(yi[i],p,gi[i],hi[i],qTemp);
+      //gmp_printf("p = %Zd e = %Zd g = %Zd h = %Zd y = %Zd\n", f->p[i],
+      //         eTemp, gi[i], hi[i], yi[i]);
+    }
+    printf("\n");
+
+    //use CRT to compute the x
+    chineeseRemainder(rop, yi, f, p, f->nfactors);
+
+    //check the x and see it it makes sense
+    mpz_powm(result,g,rop,p);
+    if(mpz_cmp(result,x) == 0)
+       printf("The result was checked.\n");
+
+    gmp_printf("%Zd^%Zd = %Zd\n",g,rop,x);
+
+    mpz_clear(n);
+    mpz_clear(nTemp);
+    mpz_clear(h);
+    mpz_clear(gTemp);
+    mpz_clear(expTemp);
+    mpz_clear(hTemp);
+    mpz_clear(qTemp);
+    mpz_clear(eTemp);
+    mpz_clear(one);
 
 
 
