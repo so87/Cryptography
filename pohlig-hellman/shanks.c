@@ -3,11 +3,11 @@
 // i calculated size wrong in my last shank attempt thats why it didn't
 //  work for large numbers........... can i have my points back? :]
 
+#include "math.h"
 #include "stdio.h"
 #include "gmp.h"
 #include "stdlib.h"
 #include "shanks.h"
-#include "math.h"
 
 
 void shanks(mpz_t rop, const mpz_t p, const mpz_t g, const mpz_t h){
@@ -49,13 +49,13 @@ void shanks(mpz_t rop, const mpz_t p, const mpz_t g, const mpz_t h){
         mpz_invert(x,g,p);
 	// make sure the answer is moded
         mpz_powm (x, x, floor, p);
-        mpz_t H;
-        mpz_init_set(H,h);
+        mpz_t h_temp;
+        mpz_init_set(h_temp,h);
 
 	// keep trying up to your size... we are not expecting any bad input
 	for(int i=0;i<= size;i++){
 		// O(lgn) because it is sorted :]
-                int j = binary_search(powers,size,H);
+                int j = binary_search(powers,size,h_temp);
                 
 		// if found h*x^i return i*n + j                
                 if(j >= 0){
@@ -64,8 +64,8 @@ void shanks(mpz_t rop, const mpz_t p, const mpz_t g, const mpz_t h){
                         return;
                 }
 		// otherwise continue to multiply and then mod out
-                mpz_mul (H, H, x);
-                mpz_mod (H, H, p);
+                mpz_mul (h_temp, h_temp, x);
+                mpz_mod (h_temp, h_temp, p);
         }
 
 }
@@ -84,6 +84,7 @@ int compare_my_indexed_mpz(const void* x, const void* y){
 int binary_search(struct indexable_mpz * arr, int size, mpz_t find){
         int l,r;
         l = 0; r = size;
+	// keep searching takes O(lgn) time
         while(l <= r){
                 int m = l+(r-l)/2;
                 if(mpz_cmp(arr[m].g,find) == 0)return m;
