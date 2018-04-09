@@ -1,7 +1,5 @@
-// Simon Owens aka "the kid"
+// Simon Owens
 // shank redo
-// i calculated size wrong in my last shank attempt thats why it didn't
-//  work for large numbers........... can i have my points back? :]
 
 #include "math.h"
 #include "stdio.h"
@@ -10,63 +8,75 @@
 #include "shanks.h"
 
 
-void shanks(mpz_t rop, const mpz_t p, const mpz_t g, const mpz_t h){
-	// init
-        mpz_t floor,N;
-        mpz_init(N);
-        mpz_init(floor);
-	
-	// find the floor of the (p-1)^1/2 + 1
-        mpz_sub_ui(N,p,1);
-        mpz_sqrt(floor,N);
-        mpz_add_ui(floor,floor,1);
-        struct indexable_mpz * powers;
-	// this isn't ever going to be over 65,535 bits. God himself
-	// couldn't even bruteforce that
-        unsigned int size = mpz_get_ui(floor);
+void shanks(mpz_t rop, const mpz_t p, const mpz_t g, const mpz_t h, const mpz_t N){
+  // set all mpz variables
+  mpz_t floor, mpz_one, a, a_contains, h_mod_answer;
+  mpz_init(floor);
+  mpz_init(mpz_one);
+  mpz_set_str(mpz_one , "1", 10);
+  // reading this N in to make it easier
+  mpz_sqrt(floor,N);
+  mpz_add(floor,floor,mpz_one);
+  // setup all the arrays and structures for performing baby step giant step
+  struct indexable_mpz * array_of_mpz;
+  int baby_index = 0;
+  struct indexable_mpz * baby_array = 0;
+  struct indexable_mpz temp;
+  // allocate the correct size
+  array_of_mpz = malloc ((mpz_get_ui (floor)+1) * sizeof (struct indexable_mpz));
+  mpz_init_set_ui (array_of_mpz[0].value, 1);
+  // init this place with zero
+  array_of_mpz[0].index = 0;
+  mpz_init(temp.value);
 
-	// create the array
-        powers = malloc(sizeof(struct indexable_mpz) * size);
-        mpz_init(powers[0].g);
-        mpz_set_str(powers[0].g,"1",10);
-       
-	// we won't use that zero index so just fill it up. Don't want to 
-	// accidently access a memory address or randmo value 
-	powers[0].index = 0;
-        for(int i=1;i <= size;i++){
-                mpz_init(powers[i].g);
-                mpz_mul(powers[i].g,powers[i-1].g,g);
-                mpz_mod(powers[i].g,powers[i].g,p);
-                powers[i].index = i;
+  // loop through, cannot be over unsigned long int size or else god himself couldn't
+  //  solve this problem
+  for (unsigned long int i = 1; i <= mpz_get_ui (floor); i++)
+    {
+      array_of_mpz[i].index = i;
+      mpz_init (array_of_mpz[i].value);
+      mpz_powm_ui(array_of_mpz[i].value,g,i,p);
+    }
+  // we need to make sure it is in sorted order and keep track of it
+  qsort(array_of_mpz, mpz_get_ui (floor)+1, sizeof (struct indexable_mpz), compare_my_indexed_mpz);
+
+  // h* g^(-floor*q)
+  mpz_init_set (a, g);
+  // which will get us the result  h*a^floor
+  //a = g^floor
+  mpz_powm (a, a, floor, p);
+  // a = g^inverse(floor)
+  mpz_invert (a, a, p);
+  mpz_init_set (a_contains,a);
+  //h_mod_answer = h
+  mpz_init_set (h_mod_answer, h);
+
+  // search through our sorted array in O(lgn) time
+  for (int i = 0; i <= mpz_get_ui (floor); i++)
+    {
+
+      mpz_set(temp.value, h_mod_answer);
+      //find h*a^floor in array_of_mpz by doing binary search
+      // we can use the built in bsearch because of our compare function and 
+      // because everything is in sorted order
+      baby_array = (struct indexable_mpz*) bsearch (&temp, array_of_mpz, mpz_get_ui (floor)+1, sizeof (struct indexable_mpz),  compare_my_indexed_mpz);
+
+      // needs to be greater than 0 if we are going to find the returned result
+      if (baby_array > 0)
+        {
+          baby_index = baby_array->index;
+          mpz_mul_ui (floor,floor,i); 
+          mpz_add_ui (floor,floor,baby_index);
+          // need to return the rop
+          mpz_set (rop, floor);
+          return;
         }
+      //h = h*a^i
+      // not expecting any bad input
+      mpz_mul (h_mod_answer, h_mod_answer, a);
+      mpz_mod(h_mod_answer, h_mod_answer, p);
 
-	// need to sort so we can search in O(lgn) time... qsort is easy
-        qsort ( powers, size, sizeof(struct indexable_mpz), compare_my_indexed_mpz);
-        
-	// find x = g^-n
-        mpz_t x;
-        mpz_init(x);
-        mpz_invert(x,g,p);
-	// make sure the answer is moded
-        mpz_powm (x, x, floor, p);
-        mpz_t h_temp;
-        mpz_init_set(h_temp,h);
-
-	// keep trying up to your size... we are not expecting any bad input
-	for(int i=0;i<= size;i++){
-		// O(lgn) because it is sorted :]
-                int j = binary_search(powers,size,h_temp);
-                
-		// if found h*x^i return i*n + j                
-                if(j >= 0){
-                        mpz_mul_ui(rop , floor, i);
-                        mpz_add_ui(rop, rop, powers[j].index);
-                        return;
-                }
-		// otherwise continue to multiply and then mod out
-                mpz_mul (h_temp, h_temp, x);
-                mpz_mod (h_temp, h_temp, p);
-        }
+    }
 
 }
 
@@ -75,23 +85,7 @@ void shanks(mpz_t rop, const mpz_t p, const mpz_t g, const mpz_t h){
 int compare_my_indexed_mpz(const void* x, const void* y){
         struct indexable_mpz *lhs = (struct indexable_mpz*)x;
         struct indexable_mpz* rhs = (struct indexable_mpz*)y;
-        return(mpz_cmp(lhs->g,rhs->g));
+        return(mpz_cmp(lhs->value,rhs->value));
 
 }
 
-// can do a binary search because indexable_mpz know their place
-// and we bc we sorted them with qsort
-int binary_search(struct indexable_mpz * arr, int size, mpz_t find){
-        int l,r;
-        l = 0; r = size;
-	// keep searching takes O(lgn) time
-        while(l <= r){
-                int m = l+(r-l)/2;
-                if(mpz_cmp(arr[m].g,find) == 0)return m;
-                if(mpz_cmp(arr[m].g,find) < 0) l = m+1;
-                else r = m-1;
-
-        }
-        return -1;
-
-}
