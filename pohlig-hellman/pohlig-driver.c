@@ -44,11 +44,15 @@ int main(int argc, char **argv)
 
 	  	// call the pohlig algorithm
           	pohlig(exponent, p, g, h);
-
+		mpz_t check;
+		mpz_init(check);
+		mpz_powm(check,g,exponent,p);
+		if(mpz_cmp(check,h) != 0){
+			gmp_printf("wrong answer: %Zd h is: %Zd",check,h);
+		}
           	gmp_printf("The exponent is : %Zd\n", exponent);
 		if ((touples > 1) && (i != (touples-1)))
 			printf("---------------\n");
-			printf("starting new calculation\n");
          	}
 
 	}
