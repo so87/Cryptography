@@ -1,0 +1,31 @@
+docker pull jess/tor-relay
+
+
+Bridge
+docker run -d \
+    -v /etc/localtime:/etc/localtime \ # so time is synced
+    --restart always \ # why not?
+    -p 9001:9001 \ # expose/publish the port
+    --name tor-relay \
+    jess/tor-relay -f /etc/tor/torrc.bridge
+
+Middle Relay
+docker run -d \
+    -v /etc/localtime:/etc/localtime \ # so time is synced
+    --restart always \ # why not?
+    -p 9001:9001 \ # expose/publish the port
+    --name tor-relay \
+    jess/tor-relay -f /etc/tor/torrc.middle
+
+Exit Relay
+docker run -d \
+    -v /etc/localtime:/etc/localtime \ # so time is synced
+    --restart always \ # why not?
+    -p 9001:9001 \ # expose/publish the port
+    --name tor-relay \
+    jess/tor-relay -f /etc/tor/torrc.exit
+
+
+Checking to make sure it works
+
+After running for a couple hours, giving time to propogate, you can check atlas.torproject.org to check if your node has successfully registered in the network.
